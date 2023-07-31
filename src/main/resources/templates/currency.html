@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Currency</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div id="wrapper">
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <div class="container-fluid">
+                <div class="col-xl-5 col-lg-5 container-fluid">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div class="mt-4  small">
+                                <div th:if="${success == null}" th:object="${taskToCreate}" class="p-5">
+                                    <div class="text-center">
+                                        <h1 class="h4 text-gray-900 mb-4">Currency search</h1>
+                                    </div>
+                                    <form th:action="@{/currency/byPeriod}" th:object="${currencyForm}" method="post">
+                                        <div class="form-group">
+                                            <label for="inputDatalist" class="form-label">Currency name</label>
+                                            <input
+                                                    class="form-control"
+                                                    list="urgencyListOptions"
+                                                    id="inputDatalist"
+                                                    name="countryName"
+                                                    placeholder="Type to search currency"
+                                                    th:value="${currencyForm.countryName != null}? ${currencyForm.countryName} : ''">
+                                            <datalist id="urgencyListOptions" th:field="*{countryName}">
+                                                <th:block th:each="currency: ${data.currencyCountries}">
+                                                    <option th:value="${currency}"></option>
+                                                    </p>
+                                                </th:block>
+                                            </datalist>
+                                            <br>
+                                            <div th:if="${#fields.hasErrors('countryName')}" th:errors="*{countryName}"
+                                                 class="alert alert-danger" role="alert"/>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="startDate">Start date:</label>
+                                            <input
+                                                    type="date"
+                                                    class="form-control"
+                                                    id="startDate"
+                                                    name="startDate"
+                                                    th:value="${currencyForm.startDate != null}? ${currencyForm.startDate} : ''">
+                                            <br>
+                                            <div th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"
+                                                 class="alert alert-danger" role="alert"/>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="endDate">End date:</label>
+                                            <input
+                                                    type="date"
+                                                    class="form-control"
+                                                    id="endDate"
+                                                    name="endDate"
+                                                    th:value="${currencyForm.endDate != null}? ${currencyForm.endDate} : ''">
+                                            <br>
+                                            <div th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"
+                                                 class="alert alert-danger" role="alert"/>
+                                        </div>
+
+                                        <div class="row justify-content-around">
+                                            <button type="submit" class="btn btn-primary col-xl-4 col-md-6 mb-5">Search
+                                                currency
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<h2>Сurrency graphic</h2>
+
+
+<div th:if="${dynamicsCurrency != null && dynamicsCurrency.currencyList.size() > 0}">
+    <div width="800" height="400">
+        <canvas id="myChart" width="800" height="400"></canvas>
+    </div>
+</div>
+
+<div th:unless="${dynamicsCurrency != null && dynamicsCurrency.currencyList.size() > 0}">
+    <p>Information is empty in that time period</p>
+</div>
+
+
+<script th:inline="javascript">
+    var dataFromServer = [[${dynamicsCurrency}]];
+    var labels = dataFromServer.currencyList.map(function (value, index) {
+        return `${value.Date}`;
+    });
+
+    var datas = dataFromServer.currencyList.map(function (value, index) {
+        return value.Cur_OfficialRate;
+    });
+
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels, //['2023-07-01', '2023-07-02', '2023-07-03'], // Пример меток для оси x
+            datasets: [{
+                label: 'Currency',
+                data: datas, //[3.0315, 3.0315, 3.0315],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+</div>
+</body>
+</html>
